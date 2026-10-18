@@ -1,8 +1,8 @@
 /* Katia AI v3 – ek modül: reklam görselleri, şeker/şaka, canlı kamera */
 (()=>{
-const AD=['reklam1.jpg','reklam2.jpg'];let adI=0;
+const AD=['reklam1.jpg','reklam2.jpg','reklam3.jpg'];let adI=0;
 function adFlash(){ // mod değişirken 3 sn göster, sonra sil
- const el=document.createElement('div');el.className='adx';el.innerHTML=`<img src="${AD[adI++%2]}" alt="Katia AI">`;
+ const el=document.createElement('div');el.className='adx';el.innerHTML=`<img src="${AD[adI++%AD.length]}" alt="Katia AI">`;
  document.body.appendChild(el);requestAnimationFrame(()=>el.classList.add('on'));
  return new Promise(r=>setTimeout(()=>{el.classList.remove('on');setTimeout(()=>{el.remove();r()},350)},3000));
 }

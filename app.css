@@ -1,7 +1,7 @@
 :root{--a:#ff5fa2;--b:#ffd98a;--bg:#050403;--tx:#f2e6cf;--fs:15px;--ff:ui-monospace,Menlo,Consolas,monospace;
 --dim:color-mix(in srgb,var(--tx) 50%,transparent);--ln:color-mix(in srgb,var(--a) 28%,transparent)}
 *{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;background:var(--bg);color:var(--tx);font:14px/1.4 var(--ff);overflow:hidden;overscroll-behavior:none}
+html,body{height:100%;width:100%;max-width:100%;overflow-x:hidden;background:var(--bg);color:var(--tx);font:14px/1.4 var(--ff);overflow:hidden;overscroll-behavior:none;-webkit-text-size-adjust:100%}
 button,input,select,textarea{font:inherit;color:inherit}
 button{background:none;border:1px solid var(--ln);color:var(--a);padding:8px 12px;cursor:pointer;letter-spacing:.1em;border-radius:0;touch-action:manipulation}
 button:hover,button.on{background:color-mix(in srgb,var(--a) 18%,transparent)}
@@ -12,8 +12,8 @@ svg.ic{width:22px;height:22px;fill:currentColor;display:block}
 .sm{color:var(--dim);letter-spacing:.1em;font-size:12px}
 
 /* ---------- düzen ---------- */
-#app{display:grid;grid-template-columns:330px 1fr 390px;grid-template-rows:60px 1fr;height:100dvh;padding-top:env(safe-area-inset-top)}
-body.nopan #app{grid-template-columns:1fr}
+#app{display:grid;grid-template-columns:minmax(250px,330px) minmax(0,1fr) minmax(280px,390px);grid-template-rows:60px minmax(0,1fr);height:100vh;height:100dvh;padding-top:env(safe-area-inset-top)}
+body.nopan #app{grid-template-columns:minmax(0,1fr)}
 body.nopan aside{display:none}
 body.nopan header{grid-column:1}
 header{grid-column:1/4;display:flex;align-items:center;gap:12px;padding:0 16px;overflow:hidden;white-space:nowrap}
@@ -24,7 +24,7 @@ header{grid-column:1/4;display:flex;align-items:center;gap:12px;padding:0 16px;o
 .sp{flex:1}
 header button{border:none;font-size:12px;padding:8px 6px}
 #clk{letter-spacing:.1em}
-aside{padding:10px 24px;overflow-y:auto;display:flex;flex-direction:column;gap:22px}
+aside{padding:10px 24px;overflow-y:auto;overflow-x:hidden;min-width:0;display:flex;flex-direction:column;gap:22px}
 .box{border-bottom:1px solid var(--ln);padding-bottom:16px}
 #center{position:relative;display:flex;flex-direction:column;min-height:0;min-width:0}
 #orb{flex:1;width:100%;min-height:0;touch-action:manipulation}
@@ -65,7 +65,7 @@ aside{padding:10px 24px;overflow-y:auto;display:flex;flex-direction:column;gap:2
 #ring svg{width:100%;height:100%;transform:rotate(-90deg)}
 #ring b{position:absolute;inset:0;display:grid;place-items:center;font-size:24px;letter-spacing:.05em}
 .row{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.row button{flex:1}
-#wx{border:1px solid var(--ln);padding:16px;background:linear-gradient(135deg,color-mix(in srgb,var(--a) 12%,transparent),transparent)}
+#wx{min-width:0;border:1px solid var(--ln);padding:16px;background:linear-gradient(135deg,color-mix(in srgb,var(--a) 12%,transparent),transparent)}
 #wx .t{font-size:38px;font-weight:700}
 #bar{height:2px;background:var(--ln);position:relative;margin-top:12px}#bar i{position:absolute;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--a)}
 #map{height:150px;border:1px solid var(--ln);position:relative}
@@ -78,7 +78,7 @@ body.nomap #mapbox{display:none}
 /* ---------- modallar ---------- */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.86);display:none;place-items:center;z-index:9000;padding:12px}
 .modal.on{display:grid}
-.pan{background:var(--bg);border:1px solid var(--a);max-width:620px;width:100%;max-height:92dvh;overflow:auto;padding:18px}
+div.pan{background:var(--bg);border:1px solid var(--a);max-width:620px;width:100%;max-height:92dvh;overflow:auto;padding:18px}
 .mod{border:1px solid var(--ln);padding:12px;margin-top:10px;cursor:pointer;display:flex;gap:12px;align-items:center;width:100%;text-align:left;letter-spacing:0}
 .mod.on{border-color:var(--a);box-shadow:0 0 18px -4px var(--a)}
 .mod svg.bd{width:46px;height:46px;flex:none;border:1px solid var(--ln)}
@@ -142,10 +142,10 @@ body.p-horror::after{content:"";position:fixed;inset:0;pointer-events:none;z-ind
 @keyframes hflick{0%,92%,100%{opacity:1}94%{opacity:.4}96%{opacity:1}98%{opacity:.6}}
 body.p-ultron::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;background:repeating-linear-gradient(0deg,rgba(255,0,0,.05) 0 1px,transparent 1px 3px)}
 
-@media(max-width:900px){
- html,body{overflow:auto}
- #app{display:flex;flex-direction:column;height:100dvh}
- body.pan #app{height:auto;min-height:100dvh}
+@media(max-width:1100px){
+ html,body{overflow-y:auto;overflow-x:hidden}
+ #app{display:flex;flex-direction:column;height:100vh;height:100dvh;padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+ body.pan #app{height:auto;min-height:100vh;min-height:100dvh}
  header{gap:8px;flex:none;height:54px;overflow-x:auto;padding:0 12px}#clk{display:none}
  #pname{font-size:15px;letter-spacing:.2em}
  #state{letter-spacing:.05em;font-size:11px}
@@ -153,9 +153,30 @@ body.p-ultron::after{content:"";position:fixed;inset:0;pointer-events:none;z-ind
  #psym{font-size:12px}
  aside{display:none;padding:16px}
  body.pan aside{display:flex}
- #center{flex:none;height:calc(100dvh - 54px - env(safe-area-inset-top))}
+ #center{flex:none;height:calc(100vh - 54px - env(safe-area-inset-top));height:calc(100dvh - 54px - env(safe-area-inset-top))}
+ aside{overflow:visible;width:100%;max-width:640px;margin:0 auto}
  body.pan #center{order:1}body.pan aside{order:2}
  #camWrap{width:96px}#cam{height:128px}
  #log{max-height:30dvh}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+@media(max-width:380px){#inp{gap:5px;margin-left:8px;margin-right:8px}#inp button{width:42px;height:42px}#micB{width:48px!important;height:48px!important}}
+
+/* ---- üst çubuk: ikon + yazı (bilgisayar ve telefonda aynı görünüm) ---- */
+header button{display:inline-flex;align-items:center;gap:7px;flex:none}
+header button em{font-style:normal}
+header button svg.ic{width:20px;height:20px}
+#state{flex:none}
+@media(max-width:600px){
+ header{gap:6px;padding:0 10px}
+ header button{width:40px;height:40px;padding:0!important;justify-content:center;border:1px solid var(--ln)!important;border-radius:50%}
+ header button em{display:none}
+ header button svg.ic{width:20px;height:20px}
+ #pname{font-size:15px;letter-spacing:.25em}
+}
+/* telefonda paneller bilgisayardakiyle aynı kart görünümü */
+@media(max-width:1100px){
+ aside .box,#wx,#mapbox{width:100%}
+ aside{gap:18px}
+}

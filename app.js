@@ -20,6 +20,9 @@ const IC={
  img:'M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2zM8.5 13.5l2.5 3 3.5-4.5 4.5 6H5l3.5-4.5z',
  send:'M2 21l21-9L2 3v7l15 2-15 2z',
  eye:'M12 5C7 5 2.7 8.1 1 12c1.7 3.9 6 7 11 7s9.3-3.1 11-7c-1.7-3.9-6-7-11-7zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-6.4a2.4 2.4 0 1 0 0 4.8 2.4 2.4 0 0 0 0-4.8z',
+ panel:'M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z',
+ modes:'M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4L12 2zM19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9L19 15z',
+ gear:'M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.48.48 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.48.48 0 0 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6a3.6 3.6 0 1 1 0-7.2 3.6 3.6 0 0 1 0 7.2z',
  flip:'M12 6V3L8 7l4 4V8a4 4 0 0 1 4 4c0 .7-.2 1.4-.5 2l1.5 1.5c.6-1 1-2.2 1-3.5a6 6 0 0 0-6-6zm-4.5 2.5C6.9 9.5 6.5 10.7 6.5 12a6 6 0 0 0 6 6v3l4-4-4-4v3a4 4 0 0 1-4-4c0-.7.2-1.4.5-2L7.5 8.5z'
 };
 const icon=n=>`<svg class="ic" viewBox="0 0 24 24"><path d="${IC[n]}"/></svg>`;
@@ -120,7 +123,7 @@ const DEF={persona:'katia',pc:{},seen:false,
  voice:true,vtype:'persona',vname:'',rate:1,pitch:1,vol:1,lang:'tr-TR',
  micMode:'auto',
  cam:{facing:'user',mode:'smart',q:768,mirror:true,show:true,prompt:'Kameradan ne görüyorsun? Kısaca analiz et.'},
- fs:15,font:'mono',orbStyle:'persona',orb:1,orbSize:1,logN:3,panels:innerWidth>900,map:true,
+ fs:15,font:'mono',orbStyle:'persona',orb:1,orbSize:1,logN:3,panels:innerWidth>1100,map:true,
  horror:true,hfreq:'mid',hvol:.8,xoxLevel:'hard',xoxStart:'user',
  uu:0,usym:''};
 let S=merge(DEF,ls('katia_s2',{}));
@@ -169,7 +172,7 @@ $('#modB').onclick=()=>{drawMods();$('#mMod').classList.add('on')};
 function closeAll(){$$('.modal').forEach(m=>{if(m.id!=='xox')m.classList.remove('on')})}
 document.addEventListener('click',e=>{if(e.target.closest('[data-close]'))closeAll()});
 $$('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m&&m.id!=='xox')m.classList.remove('on')}));
-$('#panB').onclick=()=>{S.panels=!S.panels;apply();if(S.panels&&innerWidth<=900)setTimeout(()=>$('#right').scrollIntoView({behavior:'smooth'}),50)};
+$('#panB').onclick=()=>{S.panels=!S.panels;apply();if(S.panels&&innerWidth<=1100)setTimeout(()=>$('#right').scrollIntoView({behavior:'smooth'}),50)};
 
 let replyN=0;
 function setPersona(id){

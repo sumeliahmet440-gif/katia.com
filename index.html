@@ -14,14 +14,15 @@
 <link rel="stylesheet" href="extras.css">
 </head>
 <body>
-<div id="adS" class="adx on"><img src="reklam2.jpg" alt="Katia AI"></div>
+<div id="adS" class="adx on"><img id="adImg" alt="Katia AI">
+<script>(function(){var a=["reklam1.jpg","reklam2.jpg","reklam3.jpg"];document.getElementById("adImg").src=a[Math.floor(Math.random()*a.length)]})()</script></div>
 <script>setTimeout(function(){var e=document.getElementById("adS");if(e){e.classList.remove("on");setTimeout(function(){e.remove()},350)}},3000)</script>
 <div id="app">
  <header>
   <span id="pname">KATIA</span><span id="psym"></span><span id="state">HAZIR</span><span class="sp"></span>
-  <button id="panB">PANEL</button>
-  <button id="modB">MODLAR</button>
-  <button id="setB">AYARLAR</button>
+  <button id="panB" type="button" aria-label="Panel"><span data-ic="panel"></span><em>PANEL</em></button>
+  <button id="modB" type="button" aria-label="Modlar"><span data-ic="modes"></span><em>MODLAR</em></button>
+  <button id="setB" type="button" aria-label="Ayarlar"><span data-ic="gear"></span><em>AYARLAR</em></button>
   <span id="clk" class="sm"></span>
  </header>
 
