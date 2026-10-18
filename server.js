@@ -102,6 +102,7 @@ function groqKey() {
   return '';
 }
 const BUILTIN = ['katia', 'ayaz', 'horror'];
+const lastOk = { t: '', v: '' }; // son çalışan Groq modelleri
 const hits2 = new Map();
 setInterval(() => hits2.clear(), 60 * 1000).unref();
 const okOrigin = o => APP_ORIGINS.includes(o) || (process.env.ALLOWED_ORIGINS || '').split(',').includes(o);
@@ -135,16 +136,24 @@ app.post('/api/chat', async (req, res) => {
     if (!msgs.length) return res.status(400).json({ error: { message: 'Mesaj yok.' } });
     const img = typeof b.img === 'string' && b.img.startsWith('data:image/') ? b.img : null;
     if (img) { const l = msgs[msgs.length - 1]; l.content = [{ type: 'text', text: l.content }, { type: 'image_url', image_url: { url: img } }]; }
-    const body = {
-      model: img ? (process.env.GROQ_VISION_MODEL || 'meta-llama/llama-4-scout-17b-16e-instruct') : (process.env.GROQ_MODEL || 'llama-3.3-70b-versatile'),
-      messages: [{ role: 'system', content: String(b.sys || '').slice(0, 6000) }, ...msgs],
-      temperature: Math.min(1.5, Math.max(0, +b.temp || 0.7)),
-      max_tokens: Math.min(1200, Math.max(30, +b.max || 300))
-    };
-    const r = await fetch(GROQ + '/chat/completions', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + key }, body: JSON.stringify(body) });
-    const txt = await r.text();
-    if (r.status === 401) return res.status(401).json({ error: { message: 'Sunucudaki Groq anahtarı geçersiz. console.groq.com/keys adresinden yeni anahtar alıp Render > Environment > GROQ_API_KEY değerini güncelle.' } });
-    res.status(r.status).type('application/json').send(txt);
+    const cands = img
+      ? [process.env.GROQ_VISION_MODEL, lastOk.v, 'qwen/qwen3.8-27b', 'meta-llama/llama-4-maverick-17b-128e-instruct']
+      : [process.env.GROQ_MODEL, lastOk.t, 'openai/gpt-oss-120b', 'openai/gpt-oss-20b', 'llama-3.1-8b-instant'];
+    const list = cands.filter((m, i, a) => m && a.indexOf(m) === i);
+    const msgsOut = [{ role: 'system', content: String(b.sys || '').slice(0, 6000) }, ...msgs];
+    const temp = Math.min(1.5, Math.max(0, +b.temp || 0.7)), max = Math.min(1200, Math.max(30, +b.max || 300));
+    let last = null;
+    for (const model of list) {
+      const body = { model, messages: msgsOut, temperature: temp, max_tokens: /gpt-oss/.test(model) ? max * 3 + 200 : max };
+      if (/gpt-oss/.test(model)) body.reasoning_effort = 'low';
+      const r = await fetch(GROQ + '/chat/completions', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + key }, body: JSON.stringify(body) });
+      const txt = await r.text();
+      if (r.status === 401) return res.status(401).json({ error: { message: 'Sunucudaki Groq anahtarı geçersiz. console.groq.com/keys adresinden yeni anahtar alıp Render > Environment > GROQ_API_KEY değerini güncelle.' } });
+      if (r.ok) { lastOk[img ? 'v' : 't'] = model; return res.status(200).type('application/json').send(txt); }
+      last = { status: r.status, txt };
+      if (!(r.status === 404 || r.status === 400)) break; // model hatası değilse (429 vb.) diğer modeli deneme
+    }
+    res.status(last ? last.status : 502).type('application/json').send(last ? last.txt : JSON.stringify({ error: { message: 'Groq modeli bulunamadı.' } }));
   } catch (e) { res.status(502).json({ error: { message: 'Sunucu hatası: ' + e.message } }); }
 });
 

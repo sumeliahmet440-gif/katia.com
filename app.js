@@ -81,7 +81,7 @@ const P={
 /* ---------- API sağlayıcıları ---------- */
 // t: oa = OpenAI uyumlu, an = Anthropic, gm = Gemini
 const PROV=[
- {id:'groq',n:'Groq',t:'oa',base:'https://api.groq.com/openai/v1',m:'llama-3.3-70b-versatile',vm:'meta-llama/llama-4-scout-17b-16e-instruct',tag:'Ücretsiz + ücretli',pre:'gsk_',url:'https://console.groq.com/keys'},
+ {id:'groq',n:'Groq',t:'oa',base:'https://api.groq.com/openai/v1',m:'openai/gpt-oss-120b',vm:'qwen/qwen3.8-27b',tag:'Ücretsiz + ücretli',pre:'gsk_',url:'https://console.groq.com/keys'},
  {id:'mimo',n:'Xiaomi MiMo (yeni)',t:'oa',base:'https://api.xiaomimimo.com/v1',m:'mimo-v2.5-pro',vm:'mimo-v2-omni',tag:'Xiaomi yapay zekâsı',url:'https://platform.xiaomimimo.com/#/console/api-keys'},
  {id:'openai',n:'OpenAI (ChatGPT)',t:'oa',base:'https://api.openai.com/v1',m:'gpt-4o-mini',vm:'gpt-4o-mini',tag:'Ücretli',pre:'sk-',url:'https://platform.openai.com/api-keys'},
  {id:'anthropic',n:'Anthropic (Claude)',t:'an',base:'https://api.anthropic.com/v1',m:'claude-haiku-5-5',vm:'claude-haiku-5-5',tag:'Ücretli',pre:'sk-ant-',url:'https://console.anthropic.com/settings/keys'},
@@ -234,12 +234,27 @@ function openExt(u){
  try{return window.open(u,'_blank')}catch(e){return null}
 }
 const b64=d=>d.split(',')[1]||d;
+/* Groq: kapatılan modelleri otomatik atla, çalışan modeli bul */
+const GQ_DEAD=/^(llama-3\.3-70b-versatile|meta-llama\/llama-4-scout-17b-16e-instruct|llama3-.*|mixtral-.*|gemma2?-.*|llama-3\.2-.*vision.*)$/i;
+const GQ_TXT=['openai/gpt-oss-120b','openai/gpt-oss-20b','llama-3.1-8b-instant'],GQ_VIS=['qwen/qwen3.8-27b','meta-llama/llama-4-maverick-17b-128e-instruct'];
+const GQ_OK={};
 async function callProv(id,sys,msgs,img,o){
+ if(id!=='groq')return callProv1(id,sys,msgs,img,o);
+ const c=S.keys.groq||{},k=img?'v':'t',mine=((img?c.vmodel:c.model)||'').trim();
+ const list=[GQ_OK[k],(mine&&!GQ_DEAD.test(mine))?mine:'',...(img?GQ_VIS:GQ_TXT)].filter((m,i,a)=>m&&a.indexOf(m)===i);
+ let err;
+ for(const m of list){
+  try{const out=await callProv1(id,sys,msgs,img,{...o,model:m});GQ_OK[k]=m;return out}
+  catch(e){err=e;if(!(e.status===404||e.status===400||/model|exist|access|decommission|support/i.test(e.message||'')))throw e}
+ }
+ throw err||new Error('Groq modeli bulunamadı.');
+}
+async function callProv1(id,sys,msgs,img,o){
  if(id==='builtin')return callBuiltin(sys,msgs,img,o);
  const pv=PV(id),c=S.keys[id]||{},key=cleanKey(c.key);
  const base=((c.base||pv.base)||'').trim().replace(/\/+$/,'');
  if(!base)throw new Error('Adres (Base URL) girilmemiş.');
- const model=(img?(c.vmodel||pv.vm||c.model||pv.m):(c.model||pv.m)||'').trim();
+ const model=(o.model||(img?(c.vmodel||pv.vm||c.model||pv.m):(c.model||pv.m))||'').trim();
  if(!model)throw new Error('Model adı girilmemiş.');
  const last=msgs.length-1;let url,body,parse;const headers={'Content-Type':'application/json'};
  if(pv.t==='an'){
@@ -258,7 +273,8 @@ async function callProv(id,sys,msgs,img,o){
   const reason=/^(o\d|gpt-5)/.test(model),isOA=id==='openai';
   body={model,messages:[{role:'system',content:sys},...msgs.map((m,i)=>({role:m.role,content:(img&&i===last)?[{type:'text',text:m.content},{type:'image_url',image_url:{url:img}}]:m.content}))]};
   if(!reason)body.temperature=o.temp;
-  body[isOA?'max_completion_tokens':'max_tokens']=reason?o.max*4:o.max;
+  const gptoss=/gpt-oss/i.test(model);if(gptoss)body.reasoning_effort='low';
+  body[isOA?'max_completion_tokens':'max_tokens']=reason?o.max*4:gptoss?o.max*3+200:o.max;
   parse=j=>{const c=(((j.choices||[])[0]||{}).message||{}).content;return Array.isArray(c)?c.map(x=>x.text||'').join(''):(c||'')};
  }
  const r=await net(url,headers,JSON.stringify(body));
