@@ -9,7 +9,7 @@ app.disable('x-powered-by');
 app.use(express.json({ limit: '15mb' }));
 // Tüm dosyalar aynı klasörde: sunucu/paket dosyalarını dışarı verme
 app.use((req, res, next) => {
-  if (/^\/(server\.js|package(-lock)?\.json|readme\.md|node_modules|\.env|\.git)/i.test(req.path)) return res.status(404).end();
+  if (/^\/(server\.js|package(-lock)?\.json|readme\.md|groq\.key|node_modules|\.env|\.git)/i.test(req.path)) return res.status(404).end();
   next();
 });
 app.use(express.static(__dirname, { dotfiles: 'allow', index: 'index.html' }));
@@ -90,6 +90,17 @@ app.post('/api/relay', async (req, res) => {
    Hazır anahtar: Katia / Ayaz / Horror modları (GROQ_API_KEY sadece sunucuda durur)
    --------------------------------------------------------------- */
 const GROQ = 'https://api.groq.com/openai/v1';
+const fs = require('fs');
+// Anahtarı temizle: tırnak, boşluk, satır sonu, "Bearer " ve "GROQ_API_KEY=" önekini at
+const cleanKey = v => String(v || '').trim().replace(/^(export\s+)?(GROQ_API_KEY|GROQ_KEY)\s*=\s*/i, '').replace(/^Bearer\s+/i, '').replace(/^["']+|["']+$/g, '').replace(/\s+/g, '');
+// Sırayla dener: Render ortam değişkeni (birkaç olası ad) -> groq.key dosyası (isteğe bağlı, GitHub'a koyma)
+function groqKey() {
+  for (const n of ['GROQ_API_KEY', 'GROQ_KEY', 'GROQ_APIKEY', 'GROQ', 'GROQ_TOKEN']) {
+    const k = cleanKey(process.env[n]); if (k) return k;
+  }
+  try { const k = cleanKey(fs.readFileSync(path.join(__dirname, 'groq.key'), 'utf8')); if (k) return k; } catch (e) {}
+  return '';
+}
 const BUILTIN = ['katia', 'ayaz', 'horror'];
 const hits2 = new Map();
 setInterval(() => hits2.clear(), 60 * 1000).unref();
@@ -116,8 +127,8 @@ app.options('/api/stt', preflight);
 app.post('/api/chat', async (req, res) => {
   try {
     if (!guard(req, res, 40)) return;
-    const key = process.env.GROQ_API_KEY;
-    if (!key) return res.status(503).json({ error: { message: 'Sunucuda GROQ_API_KEY tanımlı değil.' } });
+    const key = groqKey();
+    if (!key) return res.status(503).json({ error: { message: 'Sunucuda GROQ_API_KEY tanımlı değil. Render > Environment bölümüne ekle.' } });
     const b = req.body || {};
     if (!BUILTIN.includes(b.persona)) return res.status(403).json({ error: { message: 'Bu mod için hazır anahtar yok. Ayarlardan kendi API anahtarını gir.' } });
     const msgs = (Array.isArray(b.msgs) ? b.msgs : []).slice(-30).map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: String(m.content || '').slice(0, 4000) }));
@@ -131,7 +142,9 @@ app.post('/api/chat', async (req, res) => {
       max_tokens: Math.min(1200, Math.max(30, +b.max || 300))
     };
     const r = await fetch(GROQ + '/chat/completions', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + key }, body: JSON.stringify(body) });
-    res.status(r.status).type('application/json').send(await r.text());
+    const txt = await r.text();
+    if (r.status === 401) return res.status(401).json({ error: { message: 'Sunucudaki Groq anahtarı geçersiz. console.groq.com/keys adresinden yeni anahtar alıp Render > Environment > GROQ_API_KEY değerini güncelle.' } });
+    res.status(r.status).type('application/json').send(txt);
   } catch (e) { res.status(502).json({ error: { message: 'Sunucu hatası: ' + e.message } }); }
 });
 
@@ -139,7 +152,7 @@ app.post('/api/chat', async (req, res) => {
 app.post('/api/stt', express.raw({ type: () => true, limit: '10mb' }), async (req, res) => {
   try {
     if (!guard(req, res, 60)) return;
-    const key = String(req.headers['x-groq-key'] || '').trim() || process.env.GROQ_API_KEY;
+    const key = String(req.headers['x-groq-key'] || '').trim() || groqKey();
     if (!key) return res.status(503).json({ error: { message: 'GROQ_API_KEY yok.' } });
     if (!Buffer.isBuffer(req.body) || !req.body.length) return res.status(400).json({ error: { message: 'Ses yok.' } });
     const ct = String(req.headers['content-type'] || 'audio/webm').split(';')[0];
@@ -157,5 +170,7 @@ app.post('/api/stt', express.raw({ type: () => true, limit: '10mb' }), async (re
 });
 
 app.get('/healthz', (_req, res) => res.send('ok'));
+// Anahtar sunucuda görünüyor mu? (anahtarın kendisi gösterilmez)
+app.get('/api/durum', (_req, res) => { const k = groqKey(); res.json({ groq: !!k, uzunluk: k.length, gsk: k.startsWith('gsk_') }); });
 
 app.listen(process.env.PORT || 3000, () => console.log('Katia çalışıyor'));
