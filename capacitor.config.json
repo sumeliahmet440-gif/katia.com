@@ -1,0 +1,7 @@
+{
+  "appId": "com.lekostudio.katia",
+  "appName": "Katia AI",
+  "webDir": "www",
+  "server": { "androidScheme": "https" },
+  "plugins": { "CapacitorHttp": { "enabled": true } }
+}

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
+<title>Katia AI</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#050403">
+<link rel="icon" href="icon.svg"><link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="extras.css">
+</head>
+<body>
+<div id="adS" class="adx on"><img src="reklam2.jpg" alt="Katia AI"></div>
+<script>setTimeout(function(){var e=document.getElementById("adS");if(e){e.classList.remove("on");setTimeout(function(){e.remove()},350)}},3000)</script>
+<div id="app">
+ <header>
+  <span id="pname">KATIA</span><span id="psym"></span><span id="state">HAZIR</span><span class="sp"></span>
+  <button id="panB">PANEL</button>
+  <button id="modB">MODLAR</button>
+  <button id="setB">AYARLAR</button>
+  <span id="clk" class="sm"></span>
+ </header>
+
+ <aside id="left">
+  <div class="box"><div id="ring"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="none" stroke="var(--ln)" stroke-width="3"/><circle id="sec" cx="50" cy="50" r="46" fill="none" stroke="var(--a)" stroke-width="3" stroke-dasharray="289" stroke-dashoffset="289"/></svg><b id="bigclk">--:--</b></div>
+   <div class="lb" style="margin-top:14px">Zaman</div><div class="sm" id="date"></div></div>
+  <div class="box"><div class="lb">Sistem</div>
+   <div class="sm" style="margin-top:10px;line-height:1.9">CPU <span id="cpu">-</span><br>PİL <span id="bat">-</span><br>RAM <span id="ram">-</span><br>DİSK <span id="dsk">-</span></div></div>
+  <div class="box"><div id="ring2" style="width:150px;height:150px;margin:0 auto;position:relative"><svg viewBox="0 0 100 100" style="transform:rotate(-90deg);width:100%;height:100%"><circle cx="50" cy="50" r="46" fill="none" stroke="var(--ln)" stroke-width="3"/><circle id="tring" cx="50" cy="50" r="46" fill="none" stroke="var(--a)" stroke-width="3" stroke-dasharray="289" stroke-dashoffset="289"/></svg><b id="tdisp" style="position:absolute;inset:0;display:grid;place-items:center;font-size:22px">HAZIR</b></div>
+   <div class="lb" style="margin-top:14px">Zamanlayıcı</div>
+   <div class="sm">"On dakikalık zamanlayıcı kur" de</div>
+   <div class="row"><button data-m="1">1 DK</button><button data-m="5">5 DK</button><button data-m="10">10 DK</button><button data-m="25">25 DK</button></div>
+   <div class="row"><button id="swB">⏱ KRONOMETRE</button><button id="stopT">DURDUR</button></div></div>
+ </aside>
+
+ <main id="center">
+  <canvas id="orb"></canvas>
+  <div id="camWrap"><video id="cam" autoplay playsinline muted></video>
+   <div class="cb"><button id="seeB" type="button"><span data-ic="eye"></span>GÖR</button><button id="flipB" type="button"><span data-ic="flip"></span>ÇEVİR</button></div></div>
+  <div id="interim"></div>
+  <div id="note">AI KONUŞUYOR · MİKROFON KAPALI</div>
+  <div id="log"></div>
+  <div id="pend"><img id="pendImg" alt=""><span class="sm">Fotoğraf eklendi</span><button id="pendX" type="button">✕</button></div>
+  <form id="inp">
+   <button id="micB" type="button" aria-label="Mikrofon"><span data-ic="mic"></span></button>
+   <button id="camB" type="button" aria-label="Kamera"><span data-ic="cam"></span></button>
+   <button id="imgB" type="button" aria-label="Fotoğraf"><span data-ic="img"></span></button>
+   <input id="txt" placeholder="Yaz…" autocomplete="off" enterkeyhint="send">
+   <button id="sendB" type="submit" aria-label="Gönder"><span data-ic="send"></span></button>
+  </form>
+  <input type="file" id="file" accept="image/*" hidden>
+ </main>
+
+ <aside id="right">
+  <div id="wx"><div style="display:flex;justify-content:space-between"><span class="t" id="wt">--°</span><span id="wi" style="font-size:24px"></span></div>
+   <div class="lb" id="wc" style="margin-top:6px">KONUM</div><div class="sm" id="wd">Hava durumu yükleniyor…</div>
+   <div id="bar"><i id="dot"></i></div><div class="sm" style="display:flex;justify-content:space-between;margin-top:8px"><span id="wmin"></span><span id="wmax"></span></div>
+   <button id="locB" style="margin-top:10px;display:none;width:100%">KONUM İZNİ VER</button></div>
+  <div class="box"><div class="lb">Takvim</div><div style="display:flex;justify-content:space-between;align-items:end"><div><span class="big" id="evn">0</span> <span class="sm">BUGÜN</span></div><button id="addEv">+</button></div><div class="sm" id="evl" style="margin-top:8px"></div></div>
+  <div class="box"><div class="lb">Anımsatıcılar</div><div style="display:flex;justify-content:space-between;align-items:end"><div><span class="big" id="rmn">0</span> <span class="sm">AÇIK</span></div><button id="addRm">+</button></div><div class="sm" id="rml" style="margin-top:8px"></div></div>
+  <div id="mapbox"><div id="map"></div><div class="lb" style="margin-top:10px">Harita</div><div class="sm" id="mapl"></div></div>
+ </aside>
+</div>
+
+<!-- MODLAR -->
+<div class="modal" id="mMod"><div class="pan"><div class="lb">AI Modları</div><div id="mods"></div><button style="margin-top:14px;width:100%" data-close>KAPAT</button></div></div>
+
+<!-- ULTRON UYARISI -->
+<div class="modal" id="mConf"><div class="pan"><div class="lb" id="cfT">UYARI</div><p id="cfM" style="margin:16px 0;line-height:1.6"></p>
+ <div class="row"><button id="cfNo">VAZGEÇ</button><button id="cfYes" style="color:#ff5555">YİNE DE GEÇ</button></div></div></div>
+
+<!-- AYARLAR -->
+<div class="modal" id="mSet"><div class="pan"><div id="setHead"><span class="lb">Ayarlar</span><button data-close>KAPAT</button></div><div id="tabs"></div><div id="setBody"></div></div></div>
+
+<!-- XOX -->
+<div class="modal" id="xox"><div class="pan"><div class="lb">XOX</div><div class="sm" id="xsc"></div><div class="xg" id="xg"></div><div id="xst" class="sm"></div>
+ <div class="row"><button id="xNew">YENİ OYUN</button><button id="xClose">ÇIK</button></div></div></div>
+
+<!-- KORKU -->
+<div id="scare"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js" defer></script>
+<script src="config.js"></script>
+<script src="app.js" defer></script>
+<script src="extras.js" defer></script>
+</body>
+</html>
