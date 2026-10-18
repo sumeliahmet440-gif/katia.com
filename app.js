@@ -189,6 +189,8 @@ setInterval(()=>{ // ULTRON sembol titreşimi
 },450);
 
 /* ---------- API anahtarı / çağrı ---------- */
+// API anahtarı sadece ASCII olabilir: Türkçe ı/İ düzelt, boşluk/gizli karakterleri at
+const cleanKey=v=>String(v||'').replace(/ı/g,'i').replace(/İ/g,'I').replace(/^\s*(Bearer|Authorization:?)\s+/i,'').replace(/[^\x21-\x7E]/g,'');
 const hasKey=id=>{const c=S.keys[id],p=PV(id);return !!(c&&((c.key||'').trim()||(p.custom&&(c.base||'').trim())))};
 const anyKey=()=>PROV.some(p=>hasKey(p.id));
 function provOrder(vision){
@@ -234,7 +236,7 @@ function openExt(u){
 const b64=d=>d.split(',')[1]||d;
 async function callProv(id,sys,msgs,img,o){
  if(id==='builtin')return callBuiltin(sys,msgs,img,o);
- const pv=PV(id),c=S.keys[id]||{},key=(c.key||'').trim();
+ const pv=PV(id),c=S.keys[id]||{},key=cleanKey(c.key);
  const base=((c.base||pv.base)||'').trim().replace(/\/+$/,'');
  if(!base)throw new Error('Adres (Base URL) girilmemiş.');
  const model=(img?(c.vmodel||pv.vm||c.model||pv.m):(c.model||pv.m)||'').trim();
@@ -418,7 +420,7 @@ class RecSR{
    try{rc.stop()}catch(e){}await stopped;try{src.disconnect()}catch(e){}
    if(spoke&&!this._dead&&chunks.length){
     const blob=new Blob(chunks,{type:rc.mimeType||'audio/webm'});
-    const r=await fetch(serverBase()+'/api/stt?lang='+this.lang.slice(0,2),{method:'POST',headers:{'Content-Type':blob.type,'x-groq-key':((S.keys.groq||{}).key||'').trim()},body:blob});
+    const r=await fetch(serverBase()+'/api/stt?lang='+this.lang.slice(0,2),{method:'POST',headers:{'Content-Type':blob.type,'x-groq-key':cleanKey((S.keys.groq||{}).key)},body:blob});
     const j=await r.json().catch(()=>({}));
     if(!r.ok)throw Object.assign(new Error('stt'),{net:1});
     if(j.text&&j.text.length>1&&this.onresult)this.onresult({resultIndex:0,results:[Object.assign([{transcript:j.text}],{isFinal:true})]});
@@ -953,7 +955,7 @@ $('#tabs').onclick=e=>{const b=e.target.closest('[data-tab]');if(b){curTab=b.dat
 function onSetInput(e){
  const el=e.target;
  if(el.dataset.pk){ // sağlayıcı alanı
-  const c=S.keys[el.dataset.pk]=S.keys[el.dataset.pk]||{};c[el.dataset.f]=el.value.trim();save();return}
+  const c=S.keys[el.dataset.pk]=S.keys[el.dataset.pk]||{};c[el.dataset.f]=el.dataset.f==='key'?cleanKey(el.value):el.value.trim();save();return}
  const k=el.dataset.k;if(!k)return;
  let v=el.type==='checkbox'?el.checked:el.type==='range'?+el.value:el.value;
  if(el.dataset.num)v=+v;
@@ -974,7 +976,7 @@ $('#setBody').addEventListener('input',onSetInput);$('#setBody').addEventListene
 $('#setBody').addEventListener('click',async e=>{
  const b=e.target.closest('button');if(!b)return;
  if(b.id==='apiAdd'){
-  const id=$('#apiSel').value,k=$('#apiKey').value.trim();
+  const id=$('#apiSel').value,k=cleanKey($('#apiKey').value);
   if(!k){$('#apiMsg').innerHTML='<span class="bad">Anahtar boş.</span>';return}
   (S.keys[id]=S.keys[id]||{}).key=k;save();$('#apiKey').value='';
   if(!S.prov)S.prov='';renderSet();

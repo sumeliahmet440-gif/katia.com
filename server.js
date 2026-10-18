@@ -92,7 +92,7 @@ app.post('/api/relay', async (req, res) => {
 const GROQ = 'https://api.groq.com/openai/v1';
 const fs = require('fs');
 // Anahtarı temizle: tırnak, boşluk, satır sonu, "Bearer " ve "GROQ_API_KEY=" önekini at
-const cleanKey = v => String(v || '').trim().replace(/^(export\s+)?(GROQ_API_KEY|GROQ_KEY)\s*=\s*/i, '').replace(/^Bearer\s+/i, '').replace(/^["']+|["']+$/g, '').replace(/\s+/g, '');
+const cleanKey = v => String(v || '').replace(/ı/g, 'i').replace(/İ/g, 'I').replace(/[^\x21-\x7E]/g, '').trim().replace(/^(export\s+)?(GROQ_API_KEY|GROQ_KEY)\s*=\s*/i, '').replace(/^Bearer\s+/i, '').replace(/^["']+|["']+$/g, '').replace(/\s+/g, '');
 // Sırayla dener: Render ortam değişkeni (birkaç olası ad) -> groq.key dosyası (isteğe bağlı, GitHub'a koyma)
 function groqKey() {
   for (const n of ['GROQ_API_KEY', 'GROQ_KEY', 'GROQ_APIKEY', 'GROQ', 'GROQ_TOKEN']) {
@@ -152,7 +152,7 @@ app.post('/api/chat', async (req, res) => {
 app.post('/api/stt', express.raw({ type: () => true, limit: '10mb' }), async (req, res) => {
   try {
     if (!guard(req, res, 60)) return;
-    const key = String(req.headers['x-groq-key'] || '').trim() || groqKey();
+    const key = cleanKey(req.headers['x-groq-key']) || groqKey();
     if (!key) return res.status(503).json({ error: { message: 'GROQ_API_KEY yok.' } });
     if (!Buffer.isBuffer(req.body) || !req.body.length) return res.status(400).json({ error: { message: 'Ses yok.' } });
     const ct = String(req.headers['content-type'] || 'audio/webm').split(';')[0];
