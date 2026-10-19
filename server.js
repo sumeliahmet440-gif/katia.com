@@ -1,4 +1,6 @@
 const express = require('express');
+const { createCore, autoStore, PERSONAS } = require('./lekocore');
+const core = createCore(autoStore());
 const path = require('path');
 const dns = require('dns').promises;
 const net = require('net');
@@ -9,7 +11,7 @@ app.disable('x-powered-by');
 app.use(express.json({ limit: '15mb' }));
 // Tüm dosyalar aynı klasörde: sunucu/paket dosyalarını dışarı verme
 app.use((req, res, next) => {
-  if (/^\/(server\.js|package(-lock)?\.json|readme\.md|groq\.key|node_modules|\.env|\.git)/i.test(req.path)) return res.status(404).end();
+  if (/^\/(server\.js|package(-lock)?\.json|readme\.md|groq\.key|lekocore\.js|data(\/|$)|db\.json|node_modules|\.env|\.git)/i.test(req.path)) return res.status(404).end();
   next();
 });
 app.use(express.static(__dirname, { dotfiles: 'allow', index: 'index.html' }));
@@ -101,13 +103,14 @@ function groqKey() {
   try { const k = cleanKey(fs.readFileSync(path.join(__dirname, 'groq.key'), 'utf8')); if (k) return k; } catch (e) {}
   return '';
 }
-const BUILTIN = ['katia', 'ayaz', 'horror'];
+const BUILTIN = PERSONAS; // tüm modlar sunucudaki hazır anahtarı kullanır
 const lastOk = { t: '', v: '' }; // son çalışan Groq modelleri
 const hits2 = new Map();
 setInterval(() => hits2.clear(), 60 * 1000).unref();
 const okOrigin = o => APP_ORIGINS.includes(o) || (process.env.ALLOWED_ORIGINS || '').split(',').includes(o);
-function guard(req, res, limit) {
-  const n = (hits2.get(req.ip) || 0) + 1; hits2.set(req.ip, n);
+function guard(req, res, limit, map) {
+  map = map || hits2;
+  const n = (map.get(req.ip) || 0) + 1; map.set(req.ip, n);
   const o = req.headers.origin;
   if (o) {
     let oh = ''; try { oh = new URL(o).host; } catch (e) {}
@@ -119,11 +122,22 @@ function guard(req, res, limit) {
 }
 const preflight = (req, res) => {
   const o = req.headers.origin;
-  if (o && okOrigin(o)) res.set({ 'Access-Control-Allow-Origin': o, 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type, x-groq-key', 'Vary': 'Origin' });
+  if (o && okOrigin(o)) res.set({ 'Access-Control-Allow-Origin': o, 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type, x-groq-key, x-did', 'Vary': 'Origin' });
   res.status(204).end();
 };
 app.options('/api/chat', preflight);
 app.options('/api/stt', preflight);
+app.options('/api/k/*', preflight);
+
+// Hesap / Leko yönetimi (isim, ban, ayar)
+const hitsK = new Map(); setInterval(() => hitsK.clear(), 60 * 1000).unref();
+app.post('/api/k/*', async (req, res) => {
+  try {
+    if (!guard(req, res, 150, hitsK)) return;
+    const r = await core.handle(String(req.params[0] || ''), req.body, req.ip);
+    res.status(r.status).json(r.body);
+  } catch (e) { res.status(503).json({ error: { message: 'Veritabanı hatası: ' + e.message } }); }
+});
 
 app.post('/api/chat', async (req, res) => {
   try {
@@ -132,6 +146,8 @@ app.post('/api/chat', async (req, res) => {
     if (!key) return res.status(503).json({ error: { message: 'Sunucuda GROQ_API_KEY tanımlı değil. Render > Environment bölümüne ekle.' } });
     const b = req.body || {};
     if (!BUILTIN.includes(b.persona)) return res.status(403).json({ error: { message: 'Bu mod için hazır anahtar yok. Ayarlardan kendi API anahtarını gir.' } });
+    const gt = await core.gate(req.headers['x-did'], b.persona);
+    if (!gt.ok) return res.status(gt.status).json({ error: { message: gt.message } });
     const msgs = (Array.isArray(b.msgs) ? b.msgs : []).slice(-30).map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: String(m.content || '').slice(0, 4000) }));
     if (!msgs.length) return res.status(400).json({ error: { message: 'Mesaj yok.' } });
     const img = typeof b.img === 'string' && b.img.startsWith('data:image/') ? b.img : null;
@@ -161,6 +177,8 @@ app.post('/api/chat', async (req, res) => {
 app.post('/api/stt', express.raw({ type: () => true, limit: '10mb' }), async (req, res) => {
   try {
     if (!guard(req, res, 60)) return;
+    const gt = await core.gate(req.headers['x-did'], '');
+    if (!gt.ok) return res.status(gt.status).json({ error: { message: gt.message } });
     const key = cleanKey(req.headers['x-groq-key']) || groqKey();
     if (!key) return res.status(503).json({ error: { message: 'GROQ_API_KEY yok.' } });
     if (!Buffer.isBuffer(req.body) || !req.body.length) return res.status(400).json({ error: { message: 'Ses yok.' } });
@@ -180,6 +198,6 @@ app.post('/api/stt', express.raw({ type: () => true, limit: '10mb' }), async (re
 
 app.get('/healthz', (_req, res) => res.send('ok'));
 // Anahtar sunucuda görünüyor mu? (anahtarın kendisi gösterilmez)
-app.get('/api/durum', (_req, res) => { const k = groqKey(); res.json({ groq: !!k, uzunluk: k.length, gsk: k.startsWith('gsk_') }); });
+app.get('/api/durum', (_req, res) => { const k = groqKey(); res.json({ groq: !!k, uzunluk: k.length, gsk: k.startsWith('gsk_'), ...core.info() }); });
 
 app.listen(process.env.PORT || 3000, () => console.log('Katia çalışıyor'));

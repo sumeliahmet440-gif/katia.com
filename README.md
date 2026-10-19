@@ -16,3 +16,18 @@
 
 ## Mikrofon
 Capacitor eklentisi varsa onu, iOS Safari ve WebView'de MediaRecorder + sunucu (Whisper), masaüstü/Android Chrome'da tarayıcının ses tanımasını kullanır.
+
+
+## Hesaplar, Leko modu ve ban (v4)
+- Siteye ilk girişte herkes bir isim seçer. İsimler benzersizdir: Ayaz = AYaz = aYaz = ayaz (büyük/küçük harf ve Türkçe harf farkı yok sayılır).
+- Leko modu şifreyle açılır (şifre sunucuda özet olarak durur; Render'da `LEKO_PASS` tanımlarsan o geçerli olur). Cihaz bir kez girince bir daha sorulmaz.
+- Leko moduna **ilk giren kurucudur**. Kurucu herkesi banlayabilir. Diğer Leko moduna girenler sadece normal kullanıcıları banlayabilir; Leko hesaplarını banlayamaz.
+- Leko modunda üst çubuktaki YÖNETİM düğmesi: kullanıcı listesi, ayarlarını değiştirme, mesaj gönderme, banlama / ban kaldırma.
+- Sunucuda `GROQ_API_KEY` (veya `groq.key` dosyası) tüm modlar için kullanılır; telefonda da ayrıca anahtar girmek gerekmez.
+
+### Kalıcı veritabanı (ÖNEMLİ)
+Render ücretsiz planda dosyalar her yeniden başlatmada silinir; isimler ve banlar kaybolur. Çözüm (ücretsiz):
+1. https://upstash.com adresinde ücretsiz bir Redis oluştur.
+2. REST URL ve REST TOKEN değerlerini al.
+3. Render > Environment: `UPSTASH_REDIS_REST_URL` ve `UPSTASH_REDIS_REST_TOKEN` ekle.
+4. `/api/durum` adresinde `"kalici":true` görmelisin.

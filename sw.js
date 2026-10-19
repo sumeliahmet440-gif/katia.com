@@ -1,5 +1,5 @@
-const C = 'katia4';
-const CORE = ['./', './index.html', './app.css', './extras.css', './config.js', './app.js', './extras.js', './manifest.json', './icon.svg', './reklam1.jpg', './reklam2.jpg', './reklam3.jpg', './icon-192.png', './icon-512.png'];
+const C = 'katia5';
+const CORE = ['./', './index.html', './app.css', './extras.css', './config.js', './app.js', './extras.js', './hesap.css', './hesap.js', './manifest.json', './icon.svg', './reklam1.jpg', './reklam2.jpg', './reklam3.jpg', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(C).then(c => c.addAll(CORE).catch(() => {})).then(() => self.skipWaiting()));
 });

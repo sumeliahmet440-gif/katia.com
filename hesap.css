@@ -1,0 +1,72 @@
+/* Katia AI – hesap modülü stilleri */
+.gate{position:fixed;inset:0;grid-template-columns:minmax(0,1fr);z-index:9600;background:var(--bg);display:none;place-items:center;padding:18px;overflow:auto}
+.gate.on{display:grid}
+.gbox{width:100%;max-width:440px;border:1px solid var(--a);padding:26px 22px;background:var(--bg);box-shadow:0 0 60px -20px var(--a)}
+.gbox h2{font-size:22px;letter-spacing:.18em;margin:12px 0 10px}
+.gbox p{color:var(--dim);line-height:1.6;font-size:13px;margin:0 0 6px}
+.gbox b{color:var(--tx)}
+#gForm{display:flex;gap:8px;margin-top:16px}
+#gName,#pIn,#admQ,.ed input,.ed select,.ed textarea{background:var(--bg);color:var(--tx);border:1px solid var(--ln);padding:11px;min-width:0;font-size:16px}
+#gName{flex:1}
+#gGo{padding:0 18px}
+#gMsg{margin-top:12px;min-height:18px;line-height:1.5}
+.ban{background:#000;z-index:9700}.ban .gbox{border-color:#c4001a;box-shadow:0 0 60px -10px #c4001a}.ban h2{color:#ff4d4d}.ban #banRetry{margin-top:12px}
+#pIn{width:100%}
+#mPass .row{margin-top:12px}
+
+/* üst çubuk */
+#admB{display:none;color:var(--a);font-weight:700}#admB.on{display:inline-flex}
+#meN{letter-spacing:.08em;max-width:14ch;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:700px){#meN{display:none}}
+
+/* yönetim paneli */
+#mAdm .pan{max-width:780px;height:92dvh;display:flex;flex-direction:column;padding:0}
+#admHead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 16px 8px}
+#admBar{display:flex;gap:10px;align-items:center;padding:0 16px 10px;border-bottom:1px solid var(--ln)}
+#admQ{flex:1}
+#admBody{flex:1;overflow-y:auto;padding:4px 16px 16px}
+#admNote{padding:8px 16px;border-top:1px solid var(--ln);line-height:1.5}
+#admNote:empty{display:none}
+.ar{display:flex;gap:10px;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--ln);flex-wrap:wrap}
+.ar.bn{opacity:.75}
+.an{flex:1;min-width:180px}.an b{font-size:15px;overflow-wrap:anywhere}
+.ab{display:flex;gap:6px;flex-wrap:wrap}.ab button{padding:8px 10px;font-size:12px}
+.ab .dg,.dg{color:#e5484d;border-color:#e5484d55}
+.bdg{display:inline-block;font-size:10px;letter-spacing:.12em;padding:2px 6px;border:1px solid var(--ln);color:var(--a);margin-left:4px;vertical-align:middle}
+.bdg.k{background:var(--a);color:var(--bg)}.bdg.on{color:#17a34a;border-color:#17a34a66}.bdg.b{color:#e5484d;border-color:#e5484d}
+.ed{display:flex;flex-direction:column;gap:8px;padding-top:10px}
+.ed label{font-size:12px;color:var(--dim);letter-spacing:.06em;margin-top:6px;display:flex;gap:8px;align-items:center}
+.ed textarea{min-height:70px;resize:vertical}
+.ed input[type=checkbox]{width:20px;height:20px;padding:0;accent-color:var(--a)}
+.ed input[type=color]{width:56px;height:36px;padding:0}
+.ed .row .pri{background:var(--a);color:var(--bg)}
+
+/* gizemli model */
+#gzNote{display:none;text-align:center;color:#8b5cf6;font-size:11px;letter-spacing:.18em;padding:2px 0}
+#gzNote.on{display:block}
+.mod.gz{animation:gzp 2.4s ease-in-out infinite}
+@keyframes gzp{50%{filter:brightness(1.35) hue-rotate(25deg)}}
+
+/* LEKO: beyaz tema */
+body.p-leko{color-scheme:light}
+body.p-leko .ok{color:#0a8f4f}body.p-leko .bad{color:#d12f33}
+body.p-leko .modal{background:rgba(15,23,42,.45)}
+body.p-leko #mMod .pan{background:var(--bg)}
+body.p-leko #wx{background:linear-gradient(135deg,rgba(29,78,216,.08),transparent)}
+body.p-leko #map .leaflet-tile-pane{filter:grayscale(.6) contrast(1.05)}
+body.p-leko #map::after{mix-blend-mode:soft-light;opacity:.45}
+body.p-leko .leaflet-container{background:#e5e7eb}
+body.p-leko #camWrap{background:#fff}
+body.p-leko #sendB{color:#fff!important}
+body.p-leko header{border-bottom:1px solid var(--ln);box-shadow:0 1px 12px -6px rgba(15,23,42,.25)}
+body.p-leko .mod{background:linear-gradient(150deg,color-mix(in srgb,var(--mc) 12%,#fff),#fff 75%)!important;color:#0f172a}
+body.p-leko .gbox,body.p-leko .gate{background:#fff}
+body.p-leko .mod.on{filter:none!important;outline:2px solid var(--mc);outline-offset:-2px}
+body.p-leko .mod:hover{filter:none;transform:translateY(-3px)}
+body.p-leko .mod.gz{animation:none}
+body.p-leko .mod b{filter:brightness(.78)}
+body.p-leko .mod .sm{color:#475569}
+body.p-leko .mod .wn{color:#b45309}
+
+/* gizemli model gelirken ekran titrer */
+body.gzscare #app{animation:hjit .35s infinite;filter:saturate(.5) contrast(1.2)}
