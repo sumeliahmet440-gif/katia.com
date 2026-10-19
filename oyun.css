@@ -1,0 +1,71 @@
+/* Katia AI – oyun.css: oyun modu, ana ekran uygulamaları, notlar, korkunç gizli mod */
+
+/* ---------- oyun modu ---------- */
+#gmBar{display:none;gap:8px;padding:0 20px 6px;justify-content:center}
+body.p-oyun #gmBar{display:flex}
+#gmBar button{flex:1;max-width:140px;font-weight:700;letter-spacing:.18em}
+#gm{position:fixed;inset:0;z-index:9500;background:#000;display:none;flex-direction:column;padding-top:env(safe-area-inset-top)}
+#gm.on{display:flex}
+#gmTop{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--ln);color:var(--tx)}
+#gmTop b{letter-spacing:.25em;font-size:13px}
+#gmTop button{padding:6px 10px;font-size:12px}
+#gmBody{flex:1;min-height:0;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#gmBody iframe{width:100%;height:100%;border:0;background:#000}
+.gmload{position:absolute;color:var(--dim);letter-spacing:.2em;font-size:12px;pointer-events:none}
+#gmHelp{padding:6px 12px calc(6px + env(safe-area-inset-bottom));line-height:1.4;letter-spacing:0;color:#9aa;text-align:center;font-size:11px}
+.mcv{image-rendering:pixelated;width:min(100%,calc((100dvh - 150px) * 320 / 192));max-height:100%;aspect-ratio:320/192;background:#5c94fc;touch-action:none}
+.mpad{position:absolute;left:0;right:0;bottom:0;display:none;justify-content:space-between;align-items:flex-end;padding:10px 14px;pointer-events:none}
+.mpad>div{display:flex;gap:10px;pointer-events:auto}
+.mpad button{width:72px;height:72px;border-radius:50%;font-size:24px;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.35);color:#fff;padding:0;touch-action:none;user-select:none;-webkit-user-select:none}
+.mpad button.mj{width:96px;font-size:13px;letter-spacing:.1em}
+@media (pointer:coarse),(max-width:760px){.mpad{display:flex}}
+
+/* ---------- ana ekran uygulamaları ---------- */
+#homeApps{display:flex;gap:10px;overflow-x:auto;padding:6px 20px 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#homeApps::-webkit-scrollbar{display:none}
+.hap{flex:none;width:62px;border:none;background:none;padding:0;display:flex;flex-direction:column;align-items:center;gap:4px;letter-spacing:0}
+.hap:hover{background:none}
+.hai{width:44px;height:44px;border:1px solid var(--ln);border-radius:12px;display:grid;place-items:center;color:var(--a);font-size:18px;font-weight:700;background:color-mix(in srgb,var(--a) 8%,transparent);overflow:hidden}
+.hai img{width:28px;height:28px;border-radius:6px;display:block}
+.hap:active .hai{transform:scale(.93)}
+.hap.plus .hai{border-style:dashed}
+.hal{font-size:10px;color:var(--dim);max-width:62px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:0}
+
+/* ---------- ayarlar: uygulama ekle ---------- */
+.apf{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.apf input{flex:1 1 130px;min-width:0;background:var(--bg);border:1px solid var(--ln);padding:8px}
+.apf button{flex:0 0 auto}
+.apq{display:flex;gap:6px;flex-wrap:wrap}
+.apq button{padding:6px 10px;font-size:12px}
+
+/* ---------- notlar ---------- */
+#ntl .nt{display:flex;gap:6px;align-items:flex-start;font-size:12px;color:var(--dim);padding:3px 0}
+#ntl .nt span{flex:1;overflow-wrap:anywhere}
+#ntl .nt button{border:none;padding:0 4px;font-size:13px;letter-spacing:0}
+
+/* ---------- ??? gizli mod: daha korkunç ---------- */
+#gzFx{position:fixed;inset:0;pointer-events:none;z-index:8500;display:none}
+body.gzx #gzFx{display:block}
+#gzFx .gzv{position:absolute;inset:0;box-shadow:inset 0 0 140px 30px rgba(70,0,10,.9),inset 0 0 420px 80px rgba(0,0,0,.75);animation:gzbeat 1.3s ease-in-out infinite}
+#gzFx .gzs{position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px);opacity:.55;animation:gzscan 6s linear infinite}
+#gzFx.blk::after{content:"";position:absolute;inset:0;background:#000;animation:gzblk .9s steps(6) 1}
+#gzFx .gzeyes i{position:absolute;width:calc(34px * var(--s));height:calc(14px * var(--s));opacity:0;animation:gzeye 3.4s ease-in-out forwards}
+#gzFx .gzeyes i::before,#gzFx .gzeyes i::after{content:"";position:absolute;top:0;width:44%;height:100%;border-radius:50%;background:radial-gradient(circle at 50% 50%,#ff2a2a 0 28%,#7a0000 55%,transparent 72%);box-shadow:0 0 12px 3px rgba(255,0,0,.55)}
+#gzFx .gzeyes i::before{left:0}#gzFx .gzeyes i::after{right:0}
+@keyframes gzbeat{0%,100%{opacity:.55}12%{opacity:1}24%{opacity:.6}36%{opacity:.95}60%{opacity:.5}}
+@keyframes gzscan{to{transform:translateY(60px)}}
+@keyframes gzblk{0%,100%{opacity:1}30%{opacity:0}45%{opacity:1}65%{opacity:.2}80%{opacity:1}}
+@keyframes gzeye{0%{opacity:0}15%,55%{opacity:1}62%{opacity:0}68%{opacity:1}100%{opacity:0}}
+body.gzx #pname{text-shadow:-2px 0 rgba(255,0,0,.8),2px 0 rgba(0,255,255,.5);animation:gzname 5s steps(1) infinite}
+body.gzx #log div:last-child{text-shadow:0 0 8px rgba(139,92,246,.7),1px 0 rgba(255,0,60,.6)}
+body.gzx #app{animation:gzflk 7s steps(1) infinite}
+@keyframes gzname{0%,92%,100%{transform:none;letter-spacing:.4em}93%{transform:translateX(5px) skewX(-12deg);letter-spacing:.7em}95%{transform:translateX(-4px)}97%{transform:none}}
+@keyframes gzflk{0%,41%,43%,70%,72%,100%{opacity:1}42%{opacity:.82}71%{opacity:.6}}
+#app.gzglitch{animation:gzg .14s steps(2) 3!important;filter:hue-rotate(160deg) contrast(1.5) saturate(2)}
+@keyframes gzg{0%{transform:translate(-6px,2px) skewX(4deg)}50%{transform:translate(7px,-3px) skewX(-6deg)}100%{transform:translate(-3px,0)}}
+#gzJ{position:fixed;inset:0;z-index:9800;background:#000;display:none;place-items:center;pointer-events:auto}
+#gzJ.on{display:grid;animation:gzflash .18s steps(2) 2}
+#gzJ svg{height:92dvh;max-width:100vw;animation:gzzoom 1.7s cubic-bezier(.1,.9,.2,1) forwards;filter:contrast(1.4)}
+@keyframes gzzoom{0%{transform:scale(.25)}12%{transform:scale(1.05)}100%{transform:scale(1.35) translateY(2%)}}
+@keyframes gzflash{0%{background:#fff}100%{background:#000}}
+@media (prefers-reduced-motion:reduce){#gzFx .gzv,#gzFx .gzs,body.gzx #app,body.gzx #pname{animation:none}}

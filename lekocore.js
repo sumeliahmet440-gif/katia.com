@@ -7,7 +7,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
-const PERSONAS = ['katia', 'ayaz', 'friday', 'emma', 'ultron', 'horror', 'leko', 'gizem'];
+const PERSONAS = ['katia', 'ayaz', 'friday', 'emma', 'ultron', 'horror', 'leko', 'gizem', 'oyun'];
 const PASS_SALT = 'katia-leko-v1';
 // Leko şifresinin scrypt özeti (düz metin kodda durmaz). Render'da LEKO_PASS tanımlarsan o geçerli olur.
 const DEFAULT_PASS_HASH = 'f9d496cab8b06dc55055c6ba27067411fa5d89f3b12c4b812f931baf8e075333';
@@ -108,7 +108,7 @@ function createCore(store) {
   const me = u => ({
     ok: true, registered: true, name: u.name, key: u.key, banned: !!u.banned, banReason: u.banReason || '',
     admin: !!u.admin, owner: db.owner === u.key,
-    settings: u.banned ? null : (u.settings || null), ver: u.ver || 0, lock: !!u.lock, msg: u.msg || '', msgId: u.msgId || 0
+    settings: u.banned ? null : (u.settings || null), ver: u.ver || 0, lock: !!u.lock, msg: u.msg || '', msgId: u.msgId || 0, ann: db.ann || null
   });
   const pub = u => ({
     key: u.key, name: u.name, created: u.created, last: u.last || 0, banned: !!u.banned, banReason: u.banReason || '',
@@ -197,6 +197,20 @@ function createCore(store) {
         if (typeof b.msg === 'string' && b.msg.trim()) { t.msg = clip(b.msg, 300); t.msgId = Date.now(); }
         touch();
         return res(200, { ok: true, user: pub(t) });
+      }
+      case 'admin/duyuru': {
+        const a = adminOf(did); if (!a) return err(403, 'Yetkin yok.');
+        const text = clip(b.text, 300); if (!text) return err(400, 'Duyuru metni boş.');
+        db.ann = { id: Date.now(), text, by: a.name }; touch();
+        return res(200, { ok: true });
+      }
+      case 'admin/mesaj': {
+        const a = adminOf(did); if (!a) return err(403, 'Yetkin yok.');
+        const t = db.users[String(b.target || '')]; if (!t) return err(404, 'Kullanıcı bulunamadı.');
+        if (t.admin && a.key !== db.owner) return err(403, 'Leko modundaki hesaplara sadece kurucu mesaj gönderebilir.');
+        const msg = clip(b.msg, 300); if (!msg) return err(400, 'Mesaj boş.');
+        t.msg = msg; t.msgId = Date.now(); touch();
+        return res(200, { ok: true });
       }
       default:
         return err(404, 'Bilinmeyen istek.');

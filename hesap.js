@@ -114,6 +114,7 @@ function applyRemote(j){
  }
  if(changed)sv('katia_rver',j.ver);
  if(j.msg&&j.msgId&&j.msgId!==ls('katia_mid',0)){sv('katia_mid',j.msgId);say('Yönetici mesajı: '+j.msg,true,'e')}
+ if(j.ann&&j.ann.id&&j.ann.id!==ls('katia_aid',0)){sv('katia_aid',j.ann.id);say('Duyuru: '+j.ann.text,true,'e')}
 }
 async function poll(){
  try{

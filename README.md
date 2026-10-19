@@ -8,7 +8,7 @@
 
 ## APK (Capacitor)
 - `config.js` içine Render adresini yaz: `window.KATIA_SERVER='https://katia-al-byww.onrender.com';`
-- `mkdir www && cp index.html app.css extras.css app.js extras.js config.js sw.js manifest.json icon* reklam*.jpg www/`
+- `mkdir www && cp index.html app.css extras.css app.js extras.js oyun.js oyun-mario.js oyun.css hesap.js hesap.css config.js sw.js manifest.json icon* reklam*.jpg www/`
 - `npm i @capacitor/core @capacitor/cli @capacitor/android @capacitor/ios @capacitor-community/speech-recognition @capacitor/browser`
 - Android izinleri: INTERNET, RECORD_AUDIO, MODIFY_AUDIO_SETTINGS, CAMERA, ACCESS_FINE_LOCATION
 - iOS Info.plist: NSMicrophoneUsageDescription, NSSpeechRecognitionUsageDescription, NSCameraUsageDescription, NSLocationWhenInUseUsageDescription
@@ -31,3 +31,11 @@ Render ücretsiz planda dosyalar her yeniden başlatmada silinir; isimler ve ban
 2. REST URL ve REST TOKEN değerlerini al.
 3. Render > Environment: `UPSTASH_REDIS_REST_URL` ve `UPSTASH_REDIS_REST_TOKEN` ekle.
 4. `/api/durum` adresinde `"kalici":true` görmelisin.
+
+
+## Oyun modu, uygulamalar, izinler (v5)
+- **OYUN modu** (Modlar menüsünde): `mario` yaz → Leko Bros 1-1 (özgün platform oyunu, dosya içinde, dış kaynak yok). `doom` ve `fight` → Internet Archive'ın tarayıcı emülatörü (Doom ve Mortal Kombat 3) tam ekran açılır; sunucuda hiçbir şey depolanmaz. Diğer modlarda sadece mesajın tamamı `mario`/`doom`/`fight` ise açılır.
+- **Ayarlar → UYGULAMA EKLE** (ilk sekme): eklenen uygulama ana ekranda kısayol olur, dokununca sitesi açılır.
+- **Ayarlar → İZİNLER**: ana şalter + kategoriler. Açıkken: "youtubede X aç", "spotifyda X çal", "not al: …", "yarın saat 15:00 toplantı takvime ekle", "5551234567 ara", "X haritada aç". Anlaşılamayan işler için (ek istek harcar) yapay zeka eylemi seçer.
+- **Leko modu**: "istatistik", "kimler çevrimiçi", "duyur: …", "mesaj isim: …", "banla isim", "ban kaldır isim", "hesapla", "şifre üret", "zar at"; Yönetim panelinde DUYURU düğmesi.
+- **???** gizli modu: kalp atışı, uğultu, gözler, kararma, ani yüz. Ayarlar → MOD AYARLARI'ndan kapatılabilir.
