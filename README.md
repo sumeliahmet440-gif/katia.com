@@ -34,8 +34,8 @@ Render ücretsiz planda dosyalar her yeniden başlatmada silinir; isimler ve ban
 
 
 ## Oyun modu, uygulamalar, izinler (v5)
-- **OYUN modu** (Modlar menüsünde): `mario` yaz → Leko Bros 1-1 (özgün platform oyunu, dosya içinde, dış kaynak yok). `doom` ve `fight` → Internet Archive'ın tarayıcı emülatörü (Doom ve Mortal Kombat 3) tam ekran açılır; sunucuda hiçbir şey depolanmaz. Diğer modlarda sadece mesajın tamamı `mario`/`doom`/`fight` ise açılır.
+- **OYUN modu** (Modlar menüsünde): `mario` yaz → Leko Bros 1-1 (özgün platform oyunu, dosya içinde, dış kaynak yok). Diğer modlarda sadece mesajın tamamı `mario` ise açılır.
 - **Ayarlar → UYGULAMA EKLE** (ilk sekme): eklenen uygulama ana ekranda kısayol olur, dokununca sitesi açılır.
 - **Ayarlar → İZİNLER**: ana şalter + kategoriler. Açıkken: "youtubede X aç", "spotifyda X çal", "not al: …", "yarın saat 15:00 toplantı takvime ekle", "5551234567 ara", "X haritada aç". Anlaşılamayan işler için (ek istek harcar) yapay zeka eylemi seçer.
 - **Leko modu**: "istatistik", "kimler çevrimiçi", "duyur: …", "mesaj isim: …", "banla isim", "ban kaldır isim", "hesapla", "şifre üret", "zar at"; Yönetim panelinde DUYURU düğmesi.
-- **???** gizli modu: kalp atışı, uğultu, gözler, kararma, ani yüz. Ayarlar → MOD AYARLARI'ndan kapatılabilir.
+- **???** gizli modu: modlar menüsünde çok nadir (%7) görünür; cevapların yalnızca ~%22'si Sezar ile şifrelenir. Gelişinde ani yüz + çığlık, mod açıkken çok seyrek kalp atışı, uğultu, kırmızı gözler ve ışıkların sönmesi. Ayarlar → MOD AYARLARI → HORROR: korkutma efektleri kapatılırsa bunlar da kapanır.

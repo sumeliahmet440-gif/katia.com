@@ -70,3 +70,20 @@ body.p-leko .mod .wn{color:#b45309}
 
 /* gizemli model gelirken ekran titrer */
 body.gzscare #app{animation:hjit .35s infinite;filter:saturate(.5) contrast(1.2)}
+
+/* ??? korku efektleri */
+#gzFx{position:fixed;inset:0;z-index:2147483000;background:#000;display:none;overflow:hidden;align-items:center;justify-content:center}
+#gzFx.on{display:flex}
+#gzFx.face{animation:gzshake .08s steps(2) 10}
+#gzFx .gzface{height:92%;max-width:95%;filter:contrast(1.4) drop-shadow(0 0 40px #7a0000);animation:gzzoom .35s cubic-bezier(.2,1.6,.4,1) both}
+#gzFx.out{animation:gzfade .8s ease-in forwards}
+#gzFx.eyes{animation:gzbreath 3.6s ease-in-out both}
+.gzeye{position:absolute;top:44%;width:13vmin;height:5vmin;border-radius:50%;background:radial-gradient(ellipse,#fff 0 18%,#ff2020 40%,#5a0000 70%,transparent 72%);box-shadow:0 0 6vmin 2vmin #b00000;animation:gzblink 3.6s infinite}
+.gzeye.l{left:calc(50% - 20vmin)}.gzeye.r{left:calc(50% + 7vmin)}
+@keyframes gzzoom{from{transform:scale(.3)}to{transform:scale(1.08)}}
+@keyframes gzfade{to{opacity:0}}
+@keyframes gzshake{0%{transform:translate(-8px,4px)}100%{transform:translate(8px,-4px)}}
+@keyframes gzblink{0%,38%{opacity:0;transform:scale(.4)}44%,70%{opacity:1;transform:scale(1)}72%{opacity:0}76%,90%{opacity:1}100%{opacity:0}}
+@keyframes gzbreath{0%{opacity:0}15%,85%{opacity:1}100%{opacity:0}}
+body.gzdark #app{animation:gzlights 1.9s steps(1) both}
+@keyframes gzlights{0%{filter:none}10%{filter:brightness(.1)}18%{filter:none}28%{filter:brightness(.05)}34%{filter:brightness(.7)}42%,100%{filter:brightness(0)}}

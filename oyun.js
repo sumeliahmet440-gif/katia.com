@@ -1,5 +1,5 @@
 /* Katia AI – oyun.js
-   1) OYUN modu (mario / doom / fight)   2) Uygulama ekle + ana ekran kısayolları
+   1) OYUN modu (mario)   2) Uygulama ekle + ana ekran kısayolları
    3) İzinler + cihaz eylemleri (YouTube, Spotify, not, takvim, arama…)   4) Notlar
    5) Leko modu ek komutları + duyuru   6) Daha korkunç gizli mod (???) */
 (() => {
@@ -45,9 +45,9 @@ function normUrl(u) {
    ============================================================= */
 P.oyun = {
   n: 'OYUN', a: '#22c55e', b: '#fde047', bg: '#03070a', orb: 'ring', v: { t: 'male' },
-  d: 'Oyun modu. "mario", "doom" ya da "fight" yaz, oyun açılsın.',
-  sys: 'Adın OYUN. Eğlenceli, enerjili bir oyun arkadaşısın; kullanıcıya "oyuncu" diye hitap et. Kısa konuş. Kullanıcı oyun oynamak isterse ona şunu söyle: "mario", "doom" ya da "fight" yazarsa ilgili oyun açılır.',
-  hello: 'Oyun modu açık! "mario", "doom" ya da "fight" yaz, hemen başlayalım.',
+  d: 'Oyun modu. "mario" yaz, oyun açılsın.',
+  sys: 'Adın OYUN. Eğlenceli, enerjili bir oyun arkadaşısın; kullanıcıya "oyuncu" diye hitap et. Kısa konuş. Kullanıcı oyun oynamak isterse ona şunu söyle: "mario" yazarsa oyun açılır.',
+  hello: 'Oyun modu açık! "mario" yaz, hemen başlayalım.',
   nokey: 'Oyuncu, API anahtarı yok ama oyunlar anahtarsız çalışır. "mario" yaz!',
   made: 'LekoStudio tarafından yapıldım oyuncu!',
   warn: 'Oyuncu, Ultron modu oyun değil. Kullanma.'
@@ -55,9 +55,7 @@ P.oyun = {
 BUILTIN.push('oyun');
 
 const GAMES = {
-  mario: { t: 'LEKO BROS · 1-1', say: 'Mario tarzı platform oyunu açılıyor. Ok tuşları ve boşluk, ya da ekrandaki düğmeler.', help: 'Yürü: ← → (veya A D) · Zıpla: ↑ / Boşluk · Telefonda ekrandaki düğmeler · Düşmanın üstüne zıpla, ? bloklara aşağıdan vur, sondaki bayrağa ulaş.' },
-  doom: { t: 'DOOM', url: 'https://archive.org/embed/doom_dos', say: 'Doom açılıyor. Oynatma düğmesine bas.', help: 'Ok tuşları: yürü/dön · Ctrl: ateş · Boşluk: kapı aç · Enter: seç. Oyun Internet Archive\'ın tarayıcı emülatöründe çalışır; telefonda ekran klavyesi yoktur (bluetooth klavye/gamepad ya da bilgisayar önerilir).' },
-  fight: { t: 'MORTAL KOMBAT 3', url: 'https://archive.org/embed/msdos_Mortal_Kombat_3_1995', say: 'Mortal Kombat 3 açılıyor. Oynatma düğmesine bas.', help: 'Ok tuşları + Ctrl / Alt / Shift / Boşluk gibi tuşlarla vuruş. Oyun Internet Archive\'ın tarayıcı emülatöründe çalışır; telefonda ekran klavyesi yoktur (klavye/gamepad önerilir).' }
+  mario: { t: 'LEKO BROS · 1-1', say: 'Mario tarzı platform oyunu açılıyor. Ok tuşları ve boşluk, ya da ekrandaki düğmeler.', help: 'Yürü: ← → (veya A D) · Zıpla: ↑ / Boşluk · Telefonda ekrandaki düğmeler · Düşmanın üstüne zıpla, ? bloklara aşağıdan vur, sondaki bayrağa ulaş.' }
 };
 let curGame = null, marioRun = null;
 (function buildGameUi() {
@@ -65,7 +63,7 @@ let curGame = null, marioRun = null;
   d.innerHTML = '<div id="gmTop"><b id="gmT"></b><span class="sp"></span><a id="gmOpen" target="_blank" rel="noopener" hidden><button type="button">YENİ SEKMEDE AÇ</button></a><button type="button" id="gmX">KAPAT ✕</button></div><div id="gmBody"></div><div id="gmHelp" class="sm"></div>';
   document.body.appendChild(d);
   const bar = document.createElement('div'); bar.id = 'gmBar';
-  bar.innerHTML = '<button type="button" data-g="mario">MARIO</button><button type="button" data-g="doom">DOOM</button><button type="button" data-g="fight">FIGHT</button>';
+  bar.innerHTML = '<button type="button" data-g="mario">MARIO</button>';
   $('#center').insertBefore(bar, $('#pend'));
   bar.onclick = e => { const b = e.target.closest('[data-g]'); if (b) openGame(b.dataset.g); };
   $('#gmX').onclick = closeGame;
@@ -99,8 +97,8 @@ function closeGame(keep) {
 window.openGame = openGame;
 function gameCmd(text) {
   const l = lower(text).replace(/[.!?,]+/g, ' ').trim();
-  const KEY = '(mario|süper mario|super mario|doom|dum|fight|mortal kombat|mortal combat|mk ?3|mk3)';
-  const id = w => /mario/.test(w) ? 'mario' : /doom|dum/.test(w) ? 'doom' : 'fight';
+  const KEY = '(mario|süper mario|super mario)';
+  const id = () => 'mario';
   if (S.persona === 'oyun') {
     const m = l.match(new RegExp('(^|\\s)' + KEY + '(\\s|$)'));
     if (m) return id(m[2]);
@@ -397,7 +395,7 @@ window.handle = async function (text, img) {
   if (isBan() || !t || img || (typeof pendImg !== 'undefined' && pendImg)) return _handle.apply(this, arguments);
   if (typeof busy !== 'undefined' && busy) return;
   const gc = gameCmd(t);
-  if (gc === 'menu') { await own(t, 'Oyunlar: mario, doom, fight. Birini yaz ya da alttaki düğmelere bas.'); return; }
+  if (gc === 'menu') { await own(t, 'Oyun: mario. Yaz ya da alttaki düğmeye bas.'); return; }
   if (gc) { await own(t, ''); openGame(gc); say(GAMES[gc].say, true); return; }
   if (S.persona === 'leko') { const r = await lekoCmd(t); if (r !== undefined) { await own(t, r); return; } }
   const q = quickAct(t);
@@ -415,7 +413,7 @@ window.handle = async function (text, img) {
 const _sys = window.sysPrompt;
 window.sysPrompt = function () {
   let s = _sys.apply(this, arguments);
-  if (S.persona === 'oyun') s += ' Oyun modundasın: "mario", "doom" ve "fight" yazılırsa oyunlar açılır; kullanıcıya bunu hatırlat.';
+  if (S.persona === 'oyun') s += ' Oyun modundasın: "mario" yazılırsa oyun açılır; kullanıcıya bunu hatırlat.';
   if (S.act && S.act.on) s += ' Kullanıcı cihaz izinlerini açtı: "youtubede X aç", "spotifyda X çal", "not al: X", "takvime ekle", "X ara", "X haritada aç" gibi komutlarla cihazında iş yaptırabilir; gerekirse bunu hatırlat.';
   return s;
 };

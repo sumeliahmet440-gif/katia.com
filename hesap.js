@@ -31,8 +31,8 @@ function caesar(t,k){
  });
 }
 window.caesar=caesar;
-// gizemli modelin sabit cümleleri baştan şifreli
-['hello','nokey','made','warn'].forEach(k=>{if(P.gizem)P.gizem[k]=caesar(P.gizem[k],3)});
+// gizemli modelin sabit cümleleri düz yazı; sadece bazı cevaplar rastgele şifrelenir (GZ_CIPHER)
+const GZ_CIPHER=.22;
 
 /* ---------- HTML iskeletleri ---------- */
 function build(){
@@ -139,7 +139,7 @@ const rndName=()=>{
 };
 function updUI(){
  $('#admB').classList.toggle('on',IS_ADMIN&&S.persona==='leko');
- $('#gzNote').classList.toggle('on',S.persona==='gizem');
+ $('#gzNote').classList.remove('on');
  if(S.persona==='gizem'){
   if(!gzTimer)gzTimer=setInterval(()=>{if(S.persona!=='gizem'){clearInterval(gzTimer);gzTimer=0;return}$('#pname').textContent=rndName()},1000);
  }
@@ -174,6 +174,7 @@ async function gizemArrive(){
   try{await Promise.race([say(line,true),new Promise(r=>setTimeout(r,7000))])}catch(e){}
   const left=2200-(Date.now()-t0);if(left>0)await new Promise(r=>setTimeout(r,left));
   document.body.classList.remove('gzscare');
+  if(S.horror!==false)await gzFx('face');
   _sp.call(window,'gizem');
  }finally{arriving=false}
 }
@@ -195,18 +196,75 @@ $('#pForm').onsubmit=async e=>{
  btn.disabled=false;
 };
 
+/* ---------- ??? korku efektleri ---------- */
+const gzEl=document.createElement('div');gzEl.id='gzFx';document.body.appendChild(gzEl);
+const GZ_WHISPER=['Seni izliyorum.','Arkanda biri var.','Sessiz ol. Duyuyorum.','Işığı kapatma.','Neden arkana bakıyorsun?','Hâlâ buradasın...','Ekranın öbür tarafında ben de varım.','Gitme.'];
+function gzSound(kind){
+ const c=audioCtx();if(!c)return;const vol=clamp(S.hvol==null?.8:S.hvol,0,1);
+ const g=c.createGain();g.gain.value=vol;g.connect(c.destination);const t=c.currentTime;
+ const beats=kind==='face'?[0,.3,.9,1.2]:[0,.34,1.2,1.54,2.5,2.84];
+ beats.forEach(b=>{const o=c.createOscillator(),og=c.createGain();o.type='sine';o.frequency.setValueAtTime(72,t+b);o.frequency.exponentialRampToValueAtTime(30,t+b+.2);og.gain.setValueAtTime(0,t+b);og.gain.linearRampToValueAtTime(1,t+b+.02);og.gain.exponentialRampToValueAtTime(.001,t+b+.28);o.connect(og);og.connect(g);o.start(t+b);o.stop(t+b+.32)});
+ const d=c.createOscillator(),dg=c.createGain(),lp=c.createBiquadFilter();d.type='sawtooth';d.frequency.value=41;lp.type='lowpass';lp.frequency.value=150;
+ dg.gain.setValueAtTime(0,t);dg.gain.linearRampToValueAtTime(.4,t+1.2);dg.gain.linearRampToValueAtTime(0,t+3.6);d.connect(lp);lp.connect(dg);dg.connect(g);d.start(t);d.stop(t+3.7);
+ if(kind==='face'){ // ani çığlık: gürültü patlaması + düşen testere dişi
+  const n=c.sampleRate*.6,buf=c.createBuffer(1,n,c.sampleRate),a=buf.getChannelData(0);
+  for(let i=0;i<n;i++)a[i]=(Math.random()*2-1)*Math.pow(1-i/n,1.5);
+  const ns=c.createBufferSource();ns.buffer=buf;ns.connect(g);ns.start(t+.05);
+  const sc=c.createOscillator(),sg=c.createGain();sc.type='sawtooth';sc.frequency.setValueAtTime(1300,t+.05);sc.frequency.exponentialRampToValueAtTime(90,t+.9);
+  sg.gain.setValueAtTime(.8,t+.05);sg.gain.exponentialRampToValueAtTime(.001,t+1);sc.connect(sg);sg.connect(g);sc.start(t+.05);sc.stop(t+1.05);
+ }
+ setTimeout(()=>{try{c.close()}catch(e){}},4200);
+}
+const GZ_FACE=`<svg class="gzface" viewBox="0 0 200 260"><ellipse cx="100" cy="130" rx="78" ry="112" fill="#cfcac0"/><ellipse cx="68" cy="108" rx="21" ry="30" fill="#000"/><ellipse cx="132" cy="108" rx="21" ry="30" fill="#000"/><circle cx="68" cy="112" r="4" fill="#ff1a1a"/><circle cx="132" cy="112" r="4" fill="#ff1a1a"/><path d="M62 178 Q100 250 138 178 Q100 196 62 178Z" fill="#000"/><path d="M70 184 l6 16 l7 -14 l7 18 l7 -16 l7 18 l7 -16 l7 18 l7 -16 l6 14" fill="none" stroke="#cfcac0" stroke-width="3"/><path d="M90 140 Q100 168 110 140" fill="none" stroke="#7d786d" stroke-width="3"/></svg>`;
+let gzBusy=false;
+function gzFx(kind){
+ return new Promise(res=>{
+  if(gzBusy||document.hidden||S.horror===false){res();return}
+  gzBusy=true;
+  const done=()=>{gzEl.className='';gzEl.innerHTML='';gzBusy=false;res()};
+  try{navigator.vibrate&&navigator.vibrate(kind==='face'?[300,80,400]:[120,60,120])}catch(e){}
+  if(kind==='face'){
+   gzEl.innerHTML=GZ_FACE;gzEl.className='on face';gzSound('face');
+   setTimeout(()=>{gzEl.className='on out'},900);setTimeout(done,1700);
+  }else if(kind==='eyes'){
+   gzEl.innerHTML='<div class="gzeye l"></div><div class="gzeye r"></div>';gzEl.className='on eyes';gzSound('eyes');
+   gzEl.onclick=done;setTimeout(done,3600);
+  }else{ // flicker: ışıklar söner, bir şey fısıldar
+   document.body.classList.add('gzdark');gzSound('flick');
+   setTimeout(()=>{document.body.classList.remove('gzdark');say(rnd(GZ_WHISPER),false,'e');done()},1900);
+  }
+ });
+}
+function gzMaybe(p){if(S.persona==='gizem'&&Math.random()<p)setTimeout(()=>gzFx(rnd(['eyes','flicker','flicker','face'])),rr(1200,4000))}
+// mod açıkken çok seyrek rastgele korku (ort. ~3 dk'da bir ihtimal; çoğu tur boş geçer)
+let gzLoop=0;
+function gzSchedule(){
+ clearTimeout(gzLoop);
+ if(S.persona!=='gizem')return;
+ gzLoop=setTimeout(()=>{gzMaybe(.6);gzSchedule()},rr(120,300)*1000);
+}
+setInterval(()=>{if(S.persona==='gizem'&&!gzLoop)gzSchedule();if(S.persona!=='gizem'&&gzLoop){clearTimeout(gzLoop);gzLoop=0}},3000);
+
 /* ---------- gizemli model ---------- */
 const _dm=window.drawMods;
 window.drawMods=function(){
  _dm();
- if(Math.random()>=.25)return; // modlar menüsü her açıldığında %25 ihtimalle görünür
+ if(Math.random()>=.07)return; // modlar menüsü her açıldığında yalnızca %7 ihtimalle görünür
  const g=P.gizem,wrap=$('#mods');
- wrap.insertAdjacentHTML('beforeend',`<button class="mod gz${S.persona==='gizem'?' on':''}" data-p="gizem" type="button" style="--mc:${g.a}">${badge(g.a,g.b)}<span><b class="gzn" style="color:${g.a}">${rndName()}</b><span class="sm">${esc(g.d)}</span><span class="wn">Adı sürekli değişir · cevapları şifreli</span></span></button>`);
+ wrap.insertAdjacentHTML('beforeend',`<button class="mod gz${S.persona==='gizem'?' on':''}" data-p="gizem" type="button" style="--mc:${g.a}">${badge(g.a,g.b)}<span><b class="gzn" style="color:${g.a}">${rndName()}</b><span class="sm">${esc(g.d)}</span><span class="wn">Adı sürekli değişir · tekinsiz</span></span></button>`);
  clearInterval(window.__gzm);
  window.__gzm=setInterval(()=>{const e=$('.gzn');if(!e||!$('#mMod').classList.contains('on')){clearInterval(window.__gzm);return}e.textContent=rndName()},1000);
 };
 const _ar=window.afterReply;
-window.afterReply=function(r){r=_ar(r);return S.persona==='gizem'?caesar(r,3):r};
+window.afterReply=function(r){
+ r=_ar(r);
+ if(S.persona!=='gizem')return r;
+ const note=$('#gzNote');
+ if(r&&r!=='…'&&Math.random()<GZ_CIPHER){if(note)note.classList.add('on');return caesar(r,3)}
+ if(note)note.classList.remove('on');
+ if(r&&r!=='…')gzMaybe(.12); // cevaptan sonra nadiren ürkütücü bir an
+ return r;
+};
 const _speak=window.speak;
 window.speak=function(t,o){if(S.persona==='gizem'&&!(o&&o.force))return Promise.resolve();return _speak.apply(this,arguments)};
 const _ai=window.ai;
